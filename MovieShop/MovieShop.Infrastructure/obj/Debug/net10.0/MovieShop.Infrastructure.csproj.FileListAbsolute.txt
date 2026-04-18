@@ -1,0 +1,15 @@
+/Users/mac/Desktop/MovieApp/App/MovieShop/MovieShop.Infrastructure/bin/Debug/net10.0/MovieShop.Infrastructure.deps.json
+/Users/mac/Desktop/MovieApp/App/MovieShop/MovieShop.Infrastructure/bin/Debug/net10.0/MovieShop.Infrastructure.dll
+/Users/mac/Desktop/MovieApp/App/MovieShop/MovieShop.Infrastructure/bin/Debug/net10.0/MovieShop.Infrastructure.pdb
+/Users/mac/Desktop/MovieApp/App/MovieShop/MovieShop.Infrastructure/bin/Debug/net10.0/MovieShop.ApplicationCore.dll
+/Users/mac/Desktop/MovieApp/App/MovieShop/MovieShop.Infrastructure/bin/Debug/net10.0/MovieShop.ApplicationCore.pdb
+/Users/mac/Desktop/MovieApp/App/MovieShop/MovieShop.Infrastructure/obj/Debug/net10.0/MovieShop.Infrastructure.csproj.AssemblyReference.cache
+/Users/mac/Desktop/MovieApp/App/MovieShop/MovieShop.Infrastructure/obj/Debug/net10.0/MovieShop.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+/Users/mac/Desktop/MovieApp/App/MovieShop/MovieShop.Infrastructure/obj/Debug/net10.0/MovieShop.Infrastructure.AssemblyInfoInputs.cache
+/Users/mac/Desktop/MovieApp/App/MovieShop/MovieShop.Infrastructure/obj/Debug/net10.0/MovieShop.Infrastructure.AssemblyInfo.cs
+/Users/mac/Desktop/MovieApp/App/MovieShop/MovieShop.Infrastructure/obj/Debug/net10.0/MovieShop.Infrastructure.csproj.CoreCompileInputs.cache
+/Users/mac/Desktop/MovieApp/App/MovieShop/MovieShop.Infrastructure/obj/Debug/net10.0/MovieSho.4342F073.Up2Date
+/Users/mac/Desktop/MovieApp/App/MovieShop/MovieShop.Infrastructure/obj/Debug/net10.0/MovieShop.Infrastructure.dll
+/Users/mac/Desktop/MovieApp/App/MovieShop/MovieShop.Infrastructure/obj/Debug/net10.0/refint/MovieShop.Infrastructure.dll
+/Users/mac/Desktop/MovieApp/App/MovieShop/MovieShop.Infrastructure/obj/Debug/net10.0/MovieShop.Infrastructure.pdb
+/Users/mac/Desktop/MovieApp/App/MovieShop/MovieShop.Infrastructure/obj/Debug/net10.0/ref/MovieShop.Infrastructure.dll

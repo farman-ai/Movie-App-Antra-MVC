@@ -1,0 +1,53 @@
+html {
+  font-size: 14px;
+  position: relative;
+  min-height: 100%;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+body {
+  margin-bottom: 60px;
+}
+
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  white-space: nowrap;
+  line-height: 60px;
+}
+
+.movie-card {
+  margin-bottom: 20px;
+}
+
+.movie-poster-wrapper {
+  height: 320px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #111;
+  padding: 10px;
+}
+
+.movie-poster-wrapper img {
+  max-height: 100%;
+  max-width: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+.movie-card .card-title {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.movie-card .card-text {
+  color: #555;
+}
