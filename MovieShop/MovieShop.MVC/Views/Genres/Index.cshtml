@@ -1,0 +1,7 @@
+@model IEnumerable<MovieShop.ApplicationCore.Models.GenreModel>
+<h1>All Movie Genres</h1>
+<table class="table">
+   @foreach(var g in Model) {
+      <tr><td>@g.Name</td></tr>
+   }
+</table>

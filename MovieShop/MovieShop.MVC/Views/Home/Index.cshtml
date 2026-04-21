@@ -1,18 +1,51 @@
-﻿@model IEnumerable<MovieShop.ApplicationCore.Models.MovieCardModel>
+﻿@model MovieShop.ApplicationCore.Models.PagedResultSetModel<MovieShop.ApplicationCore.Models.MovieCardModel>
 
 @{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Home";
 }
 
-<div class="container mt-4 mb-5">
-    <h2 class="mb-4">Top Movies</h2>
-
+<div class="container-fluid px-4 mt-4">
     <div class="row">
-        @foreach (var movie in Model)
+        @foreach (var movie in Model.Data)
         {
-            <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-                <partial name="_MovieCard" model="movie" />
-            </div>
+            <partial name="_MovieCard" model="movie" />
         }
     </div>
+
+    <nav aria-label="Page navigation" class="mt-5 mb-5">
+        <ul class="pagination justify-content-center flex-wrap">
+            <li class="page-item @(Model.HasPreviousPage ? "" : "disabled")">
+                <a class="page-link bg-dark text-white border-secondary" asp-action="Index" asp-route-pageNumber="@(Model.PageIndex - 1)">Previous</a>
+            </li>
+
+            @{
+                int startPage = Math.Max(1, Model.PageIndex - 2);
+                int endPage = Math.Min(Model.TotalPages, Model.PageIndex + 2);
+            }
+
+            @if (startPage > 1)
+            {
+                <li class="page-item"><a class="page-link bg-dark text-white border-secondary" asp-action="Index" asp-route-pageNumber="1">1</a></li>
+                @if (startPage > 2) { <li class="page-item disabled"><span class="page-link bg-dark text-white border-secondary">...</span></li> }
+            }
+
+            @for (int i = startPage; i <= endPage; i++)
+            {
+                <li class="page-item @(i == Model.PageIndex ? "active" : "")">
+                    <a class="page-link @(i == Model.PageIndex ? "bg-danger border-danger text-white" : "bg-dark text-white border-secondary")" 
+                       asp-action="Index" asp-route-pageNumber="@i">@i</a>
+                </li>
+            }
+
+            @if (endPage < Model.TotalPages)
+            {
+                @if (endPage < Model.TotalPages - 1) { <li class="page-item disabled"><span class="page-link bg-dark text-white border-secondary">...</span></li> }
+                <li class="page-item"><a class="page-link bg-dark text-white border-secondary" asp-action="Index" asp-route-pageNumber="@Model.TotalPages">@Model.TotalPages</a></li>
+            }
+
+            <li class="page-item @(Model.HasNextPage ? "" : "disabled")">
+                <a class="page-link bg-dark text-white border-secondary" asp-action="Index" asp-route-pageNumber="@(Model.PageIndex + 1)">Next</a>
+            </li>
+        </ul>
+    </nav>
 </div>

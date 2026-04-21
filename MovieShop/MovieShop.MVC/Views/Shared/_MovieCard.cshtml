@@ -1,12 +1,22 @@
 @model MovieShop.ApplicationCore.Models.MovieCardModel
 
-<div class="card h-100 shadow-sm movie-card">
-    <div class="movie-poster-wrapper">
-        <img src="@Model.PosterUrl" class="card-img-top" alt="@Model.Title" />
-    </div>
-    <div class="card-body">
-        <h5 class="card-title">@Model.Title</h5>
-        <p class="card-text">Rating: @Model.Rating</p>
-        <a asp-controller="Movies" asp-action="Index" class="btn btn-dark">View Details</a>
+<div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-6 mb-4 px-2">
+    <div class="card bg-dark text-white shadow-sm netflix-card h-100">
+        <a asp-controller="Movies" asp-action="Details" asp-route-id="@Model.Id" class="text-decoration-none">
+            <img src="@Model.PosterUrl" class="card-img-top rounded" alt="@Model.Title" style="height: 320px; object-fit: cover;" onerror="this.src='/images/default-poster.png';" />
+            
+            <div class="card-img-overlay d-flex flex-column justify-content-end p-2 netflix-card-overlay">
+                <h6 class="card-title text-center text-truncate w-100 mb-0 px-1 bg-black bg-opacity-75 rounded py-1" style="font-size: 0.9rem;">
+                    @Model.Title
+                </h6>
+            </div>
+        </a>
     </div>
 </div>
+
+<style>
+    .netflix-card { border-radius: 4px; overflow: hidden; transition: transform 0.3s ease, box-shadow 0.3s ease; border: none !important; }
+    .netflix-card:hover { transform: scale(1.08); box-shadow: 0 10px 20px rgba(0,0,0,0.8) !important; z-index: 10; position: relative; cursor: pointer; }
+    .netflix-card-overlay { opacity: 0; transition: opacity 0.3s; background: linear-gradient(to top, rgba(0,0,0,0.9), transparent); }
+    .netflix-card:hover .netflix-card-overlay { opacity: 1; }
+</style>

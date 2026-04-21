@@ -1,71 +1,103 @@
 using MovieShop.ApplicationCore.Contracts.Services;
+using MovieShop.ApplicationCore.Contracts.Repository;
 using MovieShop.ApplicationCore.Models;
 
 namespace MovieShop.Infrastructure.Services;
 
 public class MovieService : IMovieService
 {
+    private readonly IMovieRepository _movieRepository;
+   
+    public MovieService(IMovieRepository movieRepository)
+    {
+        _movieRepository = movieRepository;
+    }
+
+    // Home Page ke liye Top Movies (Static Data as per your current code)
     public IEnumerable<MovieCardModel> GetTopMovies()
     {
        return new List<MovieCardModel>
-{
-    new MovieCardModel
-    {
-        Id = 1,
-        Title = "Domestic Disturbance",
-        PosterUrl = "https://image.tmdb.org/t/p/w342/jdGniF19AqQ1taLXmK04b6BjQk.jpg",
-        Rating = 7.4m
-    },
-    new MovieCardModel
-    {
-        Id = 2,
-        Title = "The Hard Way",
-        PosterUrl = "https://image.tmdb.org/t/p/w342/1Nu42swt2QbHGV5o69UJL9EaprJ.jpg",
-        Rating = 7.1m
-    },
-    new MovieCardModel
-    {
-        Id = 3,
-        Title = "Death to Smoochy",
-        PosterUrl = "https://image.tmdb.org/t/p/w342/jLOgkwcXzlCmwjbWVaWS1vETutl.jpg",
-        Rating = 6.8m
-    },
-    new MovieCardModel
-    {
-        Id = 4,
-        Title = "Sweet Smell of Success",
-        PosterUrl = "https://image.tmdb.org/t/p/w342/7xfLUISDZ1zZ8vPU5Y7j5mv0Xvc.jpg",
-        Rating = 8.1m
-    },
-    new MovieCardModel
-    {
-        Id = 5,
-        Title = "Trauma Center",
-        PosterUrl = "https://image.tmdb.org/t/p/w342/8K73wvCTBA3XKgZTtOZWgENUnis.jpg",
-        Rating = 5.9m
-    },
-    new MovieCardModel
-    {
-        Id = 6,
-        Title = "Shimmer Lake",
-        PosterUrl = "https://image.tmdb.org/t/p/w342/bQHhpTHiys0CZRrdDRKvXBmM5KL.jpg",
-        Rating = 6.3m
-    },
-    new MovieCardModel
-    {
-        Id = 7,
-        Title = "City of Lies",
-        PosterUrl = "https://image.tmdb.org/t/p/w342/pK7IYQdtdWtMDBJZfMqDxgMjXEt.jpg",
-        Rating = 6.5m
-    },
-    new MovieCardModel
-    {
-        Id = 8,
-        Title = "War Room",
-        PosterUrl = "https://image.tmdb.org/t/p/w342/unxQeVUi5DH01r7ZNvAHwpvX7UK.jpg",
-        Rating = 6.9m
+        {
+            new MovieCardModel { Id = 1, Title = "Domestic Disturbance", PosterUrl = "https://image.tmdb.org/t/p/w342/jdGniF19AqQ1taLXmK04b6BjQk.jpg" },
+            new MovieCardModel { Id = 2, Title = "The Hard Way", PosterUrl = "https://image.tmdb.org/t/p/w342/1Nu42swt2QbHGV5o69UJL9EaprJ.jpg" },
+            new MovieCardModel { Id = 3, Title = "Death to Smoochy", PosterUrl = "https://image.tmdb.org/t/p/w342/jLOgkwcXzlCmwjbWVaWS1vETutl.jpg" },
+            new MovieCardModel { Id = 4, Title = "Sweet Smell of Success", PosterUrl = "https://image.tmdb.org/t/p/w342/7xfLUISDZ1zZ8vPU5Y7j5mv0Xvc.jpg" }
+        };
     }
 
+    // Highest Grossing Movies logic
+    public async Task<IEnumerable<MovieCardModel>> GetHighestGrossingMovies()
+    {
+        var movies = await _movieRepository.GetHighestGrossingMovies();
+        return movies.Select(m => new MovieCardModel
+        {
+            Id = m.Id,
+            Title = m.Title,
+            PosterUrl = m.PosterUrl
+        });
+    }
+
+    // Movie Details Logic
+    public async Task<MovieDetailsResponseModel?> GetMovieDetails(int id)
+    {
+        var movie = await _movieRepository.GetMovieById(id);
+        if (movie == null) return null;
+    
+        var random = new Random();
+        decimal generatedPrice = (decimal)random.Next(5, 20) + 0.99m;
+
+        return new MovieDetailsResponseModel
+        {
+            Id = movie.Id,
+            Title = movie.Title,
+            Overview = movie.Overview,
+            Tagline = movie.Tagline,
+            Runtime = movie.Runtime,
+            Budget = movie.Budget,
+            Revenue = movie.Revenue,
+            PosterUrl = movie.PosterUrl,
+            BackdropUrl = movie.BackdropUrl,
+            ImdbUrl = movie.ImdbUrl,
+            TmdbUrl = movie.TmdbUrl,
+            OriginalLanguage = movie.OriginalLanguage,
+            ReleaseDate = movie.ReleaseDate,
+            Price = generatedPrice,
+            Rating = movie.Reviews.Any() ? movie.Reviews.Average(r => r.Rating) : 0,
+            Genres = movie.MovieGenres.Select(mg => new GenreModel { Id = mg.GenreId, Name = mg.Genre.Name }).ToList(),
+            Trailers = movie.Trailers.Select(t => new TrailerModel { Id = t.Id, Name = t.Name, TrailerUrl = t.TrailerUrl }).ToList(),
+            Casts = movie.MovieCasts.Select(mc => new CastModel { Id = mc.CastId, Name = mc.Cast.Name, Character = mc.Character, ProfilePath = mc.Cast.ProfilePath }).ToList(),
         };
+    }
+
+    // Genre Pagination (Fix: Correct Repo Method Call)
+    public async Task<PagedResultSetModel<MovieCardModel>> GetMoviesByGenrePagination(int genreId, int pageSize = 30, int pageNumber = 1)
+    {
+        // Yahan 'GetMoviesByGenrePagination' hi call hona chahiye
+        var pagedMovies = await _movieRepository.GetMoviesByGenrePagination(genreId, pageSize, pageNumber);
+
+        var movieCards = pagedMovies.Data.Select(m => new MovieCardModel
+        {
+            Id = m.Id,
+            Title = m.Title,
+            PosterUrl = m.PosterUrl,
+            Genres = m.MovieGenres?.Select(mg => new GenreModel { Id = mg.GenreId, Name = mg.Genre.Name }).ToList() ?? new List<GenreModel>()
+        }).ToList();
+
+        return new PagedResultSetModel<MovieCardModel>(movieCards, pageNumber, pageSize, pagedMovies.TotalCount);
+    }
+
+    // All Movies Pagination
+    public async Task<PagedResultSetModel<MovieCardModel>> GetMoviesByPagination(int pageNumber = 1, int pageSize = 30)
+    {
+        var pagedMovies = await _movieRepository.GetMoviesByPagination(pageNumber, pageSize);
+
+        var movieCards = pagedMovies.Data.Select(m => new MovieCardModel
+        {
+            Id = m.Id,
+            Title = m.Title,
+            PosterUrl = m.PosterUrl
+        }).ToList();
+
+        return new PagedResultSetModel<MovieCardModel>(movieCards, pageNumber, pageSize, pagedMovies.TotalCount);
     }
 }

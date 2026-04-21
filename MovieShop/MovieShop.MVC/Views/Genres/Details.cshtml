@@ -1,0 +1,33 @@
+@model MovieShop.ApplicationCore.Models.GenreDetailsModel
+
+@{
+    ViewData["Title"] = Model.Name;
+}
+
+<div class="container-fluid bg-dark min-vh-100 pb-5">
+    <div class="pt-4 px-4 d-flex align-items-center">
+        <h2 class="text-white fw-bold me-3">@Model.Name</h2>
+        <span class="badge bg-danger">@Model.Movies.Count() Movies</span>
+    </div>
+    <hr class="mx-4 border-secondary" />
+
+    <div class="px-4 mt-3">
+        <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-6 g-4">
+            @if (Model.Movies != null && Model.Movies.Any())
+            {
+                foreach (var movie in Model.Movies)
+                {
+                    <div class="col">
+                        <partial name="_MovieCard" model="movie" />
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="col-12 text-center mt-5">
+                    <h4 class="text-secondary">No movies found in this genre.</h4>
+                </div>
+            }
+        </div>
+    </div>
+</div>

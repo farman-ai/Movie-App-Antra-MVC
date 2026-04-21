@@ -12,7 +12,7 @@ public class HomeController : Controller
         _movieService = movieService;
     }
 
-    public IActionResult Index()
+    public IActionResult TopMovies()
     {
         var movies = _movieService.GetTopMovies();
         return View(movies);
@@ -22,4 +22,16 @@ public class HomeController : Controller
     {
         return View();
     }
+    // public async Task<IActionResult> Index()
+    // {
+    //     var movies = await _movieService.GetHighestGrossingMovies();
+    //     return View(movies);
+    // }
+
+public async Task<IActionResult> Index(int pageNumber = 1)
+{
+    int pageSize = 18; // Ek page pe 30 movies dikhayenge
+    var pagedMovies = await _movieService.GetMoviesByPagination(pageNumber, pageSize);
+    return View(pagedMovies);
+}
 }

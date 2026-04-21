@@ -5,6 +5,7 @@
 /Users/mac/Desktop/MovieApp/App/MovieShop/MovieShop.ApplicationCore/obj/Debug/net10.0/MovieShop.ApplicationCore.AssemblyInfoInputs.cache
 /Users/mac/Desktop/MovieApp/App/MovieShop/MovieShop.ApplicationCore/obj/Debug/net10.0/MovieShop.ApplicationCore.AssemblyInfo.cs
 /Users/mac/Desktop/MovieApp/App/MovieShop/MovieShop.ApplicationCore/obj/Debug/net10.0/MovieShop.ApplicationCore.csproj.CoreCompileInputs.cache
+/Users/mac/Desktop/MovieApp/App/MovieShop/MovieShop.ApplicationCore/obj/Debug/net10.0/MovieShop.ApplicationCore.sourcelink.json
 /Users/mac/Desktop/MovieApp/App/MovieShop/MovieShop.ApplicationCore/obj/Debug/net10.0/MovieShop.ApplicationCore.dll
 /Users/mac/Desktop/MovieApp/App/MovieShop/MovieShop.ApplicationCore/obj/Debug/net10.0/refint/MovieShop.ApplicationCore.dll
 /Users/mac/Desktop/MovieApp/App/MovieShop/MovieShop.ApplicationCore/obj/Debug/net10.0/MovieShop.ApplicationCore.pdb

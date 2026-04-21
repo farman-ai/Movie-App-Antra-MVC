@@ -1,0 +1,45 @@
+@model IEnumerable<MovieShop.ApplicationCore.Models.PurchaseModel>
+
+@{
+    ViewData["Title"] = "My Purchases";
+}
+
+<div class="row mt-3">
+    @foreach (var item in Model)
+    {
+        var modalId = $"purchaseModal_{item.MovieId}";
+        <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 mb-4">
+            <div class="card h-100 bg-dark text-white">
+                <img src="@item.PosterUrl" class="card-img-top" alt="@item.Title" style="height:320px; object-fit:cover;" />
+                <div class="card-body text-center">
+                    <button class="btn btn-light btn-sm" data-bs-toggle="modal" data-bs-target="#@modalId">
+                        Purchase Details
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="@modalId" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Purchase Details</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <img src="@item.PosterUrl" class="img-fluid rounded" alt="@item.Title" />
+                            </div>
+                            <div class="col-md-9">
+                                <p><strong>Purchased Date:</strong> @item.PurchaseDateTime.ToShortDateString()</p>
+                                <p><strong>Price:</strong> @item.TotalPrice.ToString("C")</p>
+                                <p><strong>Purchase Number:</strong> @item.PurchaseNumber</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
