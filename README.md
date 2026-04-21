@@ -1,6 +1,6 @@
 # Movie-App-Antra-MVC
 
-ASP.NET Core MVC MovieShop project created for **SEP Full Stack Assignment 1**.
+ASP.NET Core MVC MovieShop project created for **SEP Full Stack Assignment 1,2,3**.
 
 This project demonstrates a **layered architecture** using:
 - **ApplicationCore**
