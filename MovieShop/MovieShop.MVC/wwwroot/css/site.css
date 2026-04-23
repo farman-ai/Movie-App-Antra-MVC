@@ -23,3 +23,35 @@ body {
 .modal-header { border-bottom: 1px solid #404040; }
 .card { background-color: #181818; border: none; }
 .list-group-item { background-color: #181818; color: #d2d2d2; border: 1px solid #333; }
+
+/* Background setup with movie overlay */
+.auth-bg {
+    background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), 
+                url('https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=2000');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    min-height: 100vh;
+}
+
+/* Glassmorphism effect for the card */
+.glass-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 1rem;
+    border: none;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+/* Red primary buttons (Netflix style) */
+.btn-primary-custom {
+    background-color: #e50914;
+    border: none;
+    font-weight: 600;
+    padding: 0.8rem;
+    transition: 0.3s;
+}
+
+.btn-primary-custom:hover {
+    background-color: #b20710;
+    transform: translateY(-2px);
+}

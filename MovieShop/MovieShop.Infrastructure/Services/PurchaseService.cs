@@ -8,38 +8,57 @@ namespace MovieShop.Infrastructure.Services;
 public class PurchaseService : IPurchaseService
 {
     private readonly IPurchaseRepository _purchaseRepository;
+    public PurchaseService(IPurchaseRepository purchaseRepository) => _purchaseRepository = purchaseRepository;
 
-    public PurchaseService(IPurchaseRepository purchaseRepository)
+    public async Task<List<PurchaseModel>> GetUserPurchases(int userId)
     {
-        _purchaseRepository = purchaseRepository;
-    }
-
-    public async Task SavePurchase(PurchaseModel model)
-    {
-        var purchase = new Purchase
+        var purchases = await _purchaseRepository.GetPurchasesByUserId(userId);
+        
+        var modelList = new List<PurchaseModel>();
+        foreach (var p in purchases)
         {
-            UserId = model.UserId,
-            MovieId = model.MovieId,
-            TotalPrice = model.TotalPrice,
-            PurchaseDateTime = model.PurchaseDateTime
-        };
-
-        await _purchaseRepository.Add(purchase);
+            modelList.Add(new PurchaseModel
+            {
+                UserId = p.UserId,
+                MovieId = p.MovieId,
+                PurchaseNumber = p.PurchaseNumber,
+                TotalPrice = p.TotalPrice,
+                PurchaseDateTime = p.PurchaseDateTime,
+                // Yahan se aayegi Image aur Title
+                Title = p.Movie?.Title ?? "Unknown",
+                PosterUrl = p.Movie?.PosterUrl ?? "" 
+            });
+        }
+        return modelList;
     }
 
-   public async Task<IEnumerable<PurchaseModel>> GetUserPurchases(int userId)
-{
-    var purchases = await _purchaseRepository.GetPurchasesByUser(userId);
-
-    return purchases.Select(p => new PurchaseModel
+    public async Task<bool> PurchaseMovie(PurchaseRequestModel request)
     {
-        UserId = p.UserId,
-        MovieId = p.MovieId,
-        Title = p.Movie.Title,
-        PosterUrl = p.Movie.PosterUrl,
-        PurchaseNumber = p.PurchaseNumber,
-        TotalPrice = p.TotalPrice,
-        PurchaseDateTime = p.PurchaseDateTime
-    });
+        var purchase = new Purchase {
+            UserId = request.UserId,
+            MovieId = request.MovieId,
+            TotalPrice = request.TotalPrice,
+            PurchaseDateTime = request.PurchaseDateTime,
+            PurchaseNumber = request.PurchaseNumber
+        };
+        var result = await _purchaseRepository.AddAsync(purchase);
+        return result != null;
+    }
+
+
+    public async Task<bool> IsMoviePurchased(int userId, int movieId)
+{
+   
+    var purchases = await _purchaseRepository.GetPurchasesByUserId(userId);
+    
+    
+    return purchases.Any(p => p.MovieId == movieId);
+}
+
+
+
+public async Task<IEnumerable<TopPurchasedMovieModel>> GetTopMovies(DateTime? fromDate, DateTime? toDate)
+{
+    return await _purchaseRepository.GetTopPurchasedMovies(fromDate, toDate);
 }
 }

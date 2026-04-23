@@ -1,46 +1,72 @@
 @model MovieShop.ApplicationCore.Models.UserRegisterModel
 
-@{
-    ViewData["Title"] = "Register";
-}
+<div class="auth-bg d-flex align-items-center justify-content-center">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-11 col-lg-8">
+                <div class="card glass-card overflow-hidden">
+                    <div class="row g-0">
+                        <div class="col-md-5 d-none d-md-block" style="background: url('https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=1000'); background-size: cover; background-position: center;">
+                            <div class="h-100 bg-dark bg-opacity-25 d-flex align-items-end p-4">
+                                <p class="text-white fw-light">"The best movies, all in one place."</p>
+                            </div>
+                        </div>
 
-<h1>Register</h1>
+                        <div class="col-md-7 p-4 p-lg-5">
+                            <h2 class="fw-bold text-danger mb-4">Create Account</h2>
+                            
+                            <form asp-action="Register" method="post">
+                                @Html.AntiForgeryToken()
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="FirstName" class="form-label text-dark small fw-bold">FIRST NAME</label>
+                                        <input asp-for="FirstName" class="form-control bg-light text-dark" />
+                                        <span asp-validation-for="FirstName" class="text-dark small"></span>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="LastName" class="form-label text-dark small fw-bold">LAST NAME</label>
+                                        <input asp-for="LastName" class="form-control bg-light text-dark" />
+                                        <span asp-validation-for="LastName" class="text-dark small"></span>
+                                    </div>
+                                </div>
 
-@if (TempData["Message"] != null)
-{
-    <div class="alert alert-success">@TempData["Message"]</div>
-}
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="Email" class="form-label text-dark small fw-bold">EMAIL ADDRESS</label>
+                                        <input asp-for="Email" class="form-control bg-light text-dark" />
+                                        <span asp-validation-for="Email" class="text-dark small"></span>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="DateOfBirth" class="form-label text-dark small fw-bold">DATE OF BIRTH</label>
+                                        <input asp-for="DateOfBirth" type="date" class="form-control bg-light text-dark" />
+                                        <span asp-validation-for="DateOfBirth" class="text-dark small"></span>
+                                    </div>
+                                </div>
 
-<form asp-action="Register" asp-controller="Account" method="post">
-    @Html.AntiForgeryToken()
+                                <div class="row">
+                                    <div class="col-md-6 mb-4">
+                                        <label asp-for="Password" class="form-label text-dark small fw-bold">PASSWORD</label>
+                                        <input asp-for="Password" type="password" class="form-control bg-light" placeholder="At least 6 characters" />
+                                        <span asp-validation-for="Password" class="text-dark small"></span>
+                                    </div>
+                                    <div class="col-md-6 mb-4">
+                                        <label asp-for="ConfirmPassword" class="form-label text-dark small fw-bold">CONFIRM PASSWORD</label>
+                                        <input asp-for="ConfirmPassword" type="password" class="form-control bg-light text-dark" />
+                                        <span asp-validation-for="ConfirmPassword" class="text-dark small"></span>
+                                    </div>
+                                </div>
 
-    <div class="mb-3">
-        <label asp-for="FirstName" class="form-label"></label>
-        <input asp-for="FirstName" class="form-control" />
-        <span asp-validation-for="FirstName" class="text-danger"></span>
+                                <button type="submit" class="btn btn-danger w-100 text-white py-2">Get Started</button>
+                            </form>
+
+                            <div class="mt-4 text-center">
+                                <span class="text-dark small">Already have an account? <a asp-action="Login" class="text-primary fw-bold text-decoration-none">Sign In</a></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-
-    <div class="mb-3">
-        <label asp-for="LastName" class="form-label"></label>
-        <input asp-for="LastName" class="form-control" />
-        <span asp-validation-for="LastName" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="Email" class="form-label"></label>
-        <input asp-for="Email" class="form-control" />
-        <span asp-validation-for="Email" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="Password" class="form-label"></label>
-        <input asp-for="Password" type="password" class="form-control" />
-        <span asp-validation-for="Password" class="text-danger"></span>
-    </div>
-
-    <button type="submit" class="btn btn-primary">Register</button>
-</form>
-
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-}
+</div>

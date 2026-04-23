@@ -1,5 +1,13 @@
 @model MovieShop.ApplicationCore.Models.MovieDetailsResponseModel
 
+@{
+    ViewData["Title"] = "Movie Details";
+    // URL parameters ko handle karna taaki state bani rahe
+    var userId = Context.Request.Query["userId"];
+    var userName = Context.Request.Query["name"];
+    var isAdmin = Context.Request.Query["isAdmin"];
+}
+
 <div class="container-fluid bg-dark text-white p-0">
     <div class="row g-0 p-4 align-items-center" style="background: linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.85)), url('@Model.BackdropUrl'); background-size: cover; background-position: center;">
         
@@ -27,16 +35,29 @@
         </div>
 
         <div class="col-md-3 d-grid gap-3 px-4">
-            <button type="button" class="btn btn-outline-light btn-lg" data-bs-toggle="modal" data-bs-target="#reviewModal">
-                REVIEW
-            </button>
-            <button type="button" class="btn btn-light btn-lg" data-bs-toggle="modal" data-bs-target="#buyModal">
-                BUY MOVIE
-            </button>
+            @if (!string.IsNullOrEmpty(userName))
+            {
+                <button type="button" class="btn btn-outline-light btn-lg" data-bs-toggle="modal" data-bs-target="#reviewModal">
+                    <i class="fa-solid fa-pen-to-square"></i> REVIEW
+                </button>
+            }
+
+            @if (ViewBag.IsPurchased == true)
+            {
+                <button type="button" class="btn btn-success btn-lg" data-bs-toggle="modal" data-bs-target="#watchModal">
+                    WATCH NOW <i class="fa-solid fa-play"></i>
+                </button>
+            }
+            else
+            {
+                <button type="button" class="btn btn-light btn-lg" data-bs-toggle="modal" data-bs-target="#buyModal">
+                    BUY MOVIE
+                </button>
+            }
         </div>
     </div>
 
-    <div class="row p-4 bg-black min-vh-100">
+    <div class="row p-4 bg-black">
         
         <div class="col-md-4 border-end border-secondary">
             <h5 class="text-uppercase fw-bold mb-3 border-bottom border-danger pb-2">Movie Facts</h5>
@@ -45,13 +66,7 @@
                     Release Date <span class="badge rounded-pill bg-secondary float-end">@Model.ReleaseDate.ToShortDateString()</span>
                 </li>
                 <li class="list-group-item bg-transparent text-white border-secondary">
-                    Run Time <span class="badge rounded-pill bg-secondary float-end">@Model.Runtime m</span>
-                </li>
-                <li class="list-group-item bg-transparent text-white border-secondary">
-                    Box Office <span class="badge rounded-pill bg-secondary float-end">@Model.Revenue.ToString("C0", new System.Globalization.CultureInfo("en-US"))</span>
-                </li>
-                <li class="list-group-item bg-transparent text-white border-secondary">
-                    Budget <span class="badge rounded-pill bg-secondary float-end">@Model.Budget.ToString("C0", new System.Globalization.CultureInfo("en-US"))</span>
+                    Box Office <span class="badge rounded-pill bg-secondary float-end">@Model.Revenue.ToString("C0")</span>
                 </li>
             </ul>
 
@@ -61,7 +76,7 @@
                 {
                     <li class="list-group-item bg-transparent text-white border-secondary">
                         <a href="@trailer.TrailerUrl" class="text-white text-decoration-none" target="_blank">
-                            <i class="bi bi-play-circle me-2"></i> @trailer.Name
+                            <i class="fa-solid fa-circle-play me-2 text-danger"></i> @trailer.Name
                         </a>
                     </li>
                 }
@@ -70,71 +85,146 @@
 
         <div class="col-md-8 px-4">
             <h5 class="text-uppercase fw-bold mb-3 border-bottom border-danger pb-2">Cast</h5>
-            <ul class="list-group list-group-flush">
+            <div class="row row-cols-1 row-cols-md-2 g-3 mb-5">
                 @foreach (var cast in Model.Casts)
                 {
-                    <a asp-controller="Cast" asp-action="Details" asp-route-id="@cast.Id" class="list-group-item list-group-item-action bg-transparent text-white border-secondary d-flex align-items-center">
-                        <img src="@cast.ProfilePath" class="rounded-circle me-3" style="width: 45px; height: 45px; object-fit: cover;" alt="@cast.Name" />
-                        <span class="flex-grow-1 fw-bold">@cast.Name</span>
-                        <span class="text-secondary fst-italic">@cast.Character</span>
-                    </a>
+                    <div class="col">
+                        <a asp-controller="Cast" asp-action="Details" asp-route-id="@cast.Id" asp-route-userId="@userId" asp-route-name="@userName" asp-route-isAdmin="@isAdmin" class="text-decoration-none">
+                            <div class="d-flex align-items-center p-2 rounded bg-dark border border-secondary text-white">
+                                <img src="@cast.ProfilePath" class="rounded-circle me-3" style="width: 45px; height: 45px; object-fit: cover;" />
+                                <div>
+                                    <div class="fw-bold">@cast.Name</div>
+                                    <div class="small text-secondary fst-italic">@cast.Character</div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
                 }
-            </ul>
+            </div>
+
+            <h5 class="text-uppercase fw-bold mb-3 border-bottom border-danger pb-2">User Reviews</h5>
+            <div id="review-list">
+                @if (Model.Reviews != null && Model.Reviews.Any())
+                {
+                    @foreach (var review in Model.Reviews)
+                    {
+                        <div class="card bg-dark border-secondary mb-3 shadow-sm">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="text-danger fw-bold"><i class="fa-solid fa-user-circle me-1"></i> User #@review.UserId</span>
+                                    <span class="badge bg-warning text-dark">@review.Rating <i class="fa-solid fa-star"></i></span>
+                                </div>
+                                <p class="card-text text-light">@review.ReviewText</p>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="text-center p-4 border border-secondary rounded border-dashed">
+                        <p class="text-secondary mb-0">No reviews found for this movie. Be the first to share your thoughts!</p>
+                    </div>
+                }
+            </div>
         </div>
     </div>
 </div>
 
-<div class="modal fade" id="buyModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="buyModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content bg-dark text-white border-secondary">
             <div class="modal-header border-secondary">
-                <h5 class="modal-title">Purchase Confirmation</h5>
+                <h5 class="modal-title">Confirm Purchase</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body">
-                <p>Confirm purchase for: <strong>@Model.Title</strong></p>
-                <div class="d-flex justify-content-between mt-3">
-                    <span>Price:</span>
-                    <span class="fw-bold text-success">@Model.Price.ToString("C", new System.Globalization.CultureInfo("en-US"))</span>
-                </div>
-            </div>
-            <div class="modal-footer border-secondary">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <form asp-controller="User" asp-action="Purchase" method="post">
-                    <input type="hidden" name="MovieId" value="@Model.Id" />
-                    <button type="submit" class="btn btn-light">Purchase Button</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="reviewModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content bg-dark text-white border-secondary">
-            <div class="modal-header border-secondary">
-                <h5 class="modal-title">Write a Review</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <form asp-controller="User" asp-action="Review" method="post">
+            <form asp-controller="User" asp-action="BuyMovie" method="post">
                 <div class="modal-body">
-                    <input type="hidden" name="MovieId" value="@Model.Id" />
-                    <div class="mb-3">
-                        <label class="form-label">Rating (1-10)</label>
-                        <select name="Rating" class="form-select bg-dark text-white border-secondary">
-                            @for (int i = 1; i <= 10; i++) { <option value="@i">@i</option> }
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Review</label>
-                        <textarea name="ReviewText" class="form-control bg-dark text-white border-secondary" rows="4" placeholder="Your thoughts..."></textarea>
-                    </div>
+                    <p>Confirming purchase for: <strong>@Model.Title</strong></p>
+                    <p>Total Charge: <span class="text-success fw-bold">$@Model.Price</span></p>
+                    <input type="hidden" name="movieId" value="@Model.Id" />
+                    <input type="hidden" name="price" value="@Model.Price" />
+                    <input type="hidden" name="userId" value="@userId" />
+                    <input type="hidden" name="name" value="@userName" />
+                    <input type="hidden" name="isAdmin" value="@isAdmin" />
                 </div>
                 <div class="modal-footer border-secondary">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-light">Submit</button>
+                    <button type="submit" class="btn btn-danger px-4">Buy Now</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="reviewModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-white border-secondary">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title">Write Your Review</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form asp-controller="User" asp-action="SubmitReview" method="post">
+                <div class="modal-body">
+                    <input type="hidden" name="MovieId" value="@Model.Id" />
+                    <input type="hidden" name="UserId" value="@userId" />
+                    <input type="hidden" name="name" value="@userName" />
+                    <input type="hidden" name="isAdmin" value="@isAdmin" />
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Rating (1-10)</label>
+                        <select name="Rating" class="form-select bg-black text-white border-secondary shadow-none">
+                            @for (int i = 10; i >= 1; i--) { <option value="@i">@i Stars</option> }
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Review</label>
+                        <textarea name="ReviewText" class="form-control bg-black text-white border-secondary shadow-none" rows="4" placeholder="How was the movie?" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger px-4">Submit Review</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="watchModal" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content bg-black">
+            <div class="modal-header border-0">
+                <h5 class="modal-title text-white">@Model.Title</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" id="stopVideo"></button>
+            </div>
+            <div class="modal-body p-0">
+                @{
+                    var trailerUrl = Model.Trailers.FirstOrDefault()?.TrailerUrl?.Replace("watch?v=", "embed/") ?? "";
+                }
+                @if (!string.IsNullOrEmpty(trailerUrl))
+                {
+                    <div class="ratio ratio-16x9">
+                        <iframe src="@trailerUrl" allowfullscreen></iframe>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <script>
+        Swal.fire({
+            title: 'Thank You!',
+            text: '@TempData["SuccessMessage"]',
+            icon: 'success',
+            background: '#1a1a1a',
+            color: '#ffffff',
+            confirmButtonColor: '#d9534f'
+        });
+    </script>
+}

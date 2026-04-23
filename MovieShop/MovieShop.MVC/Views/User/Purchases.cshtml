@@ -2,44 +2,74 @@
 
 @{
     ViewData["Title"] = "My Purchases";
+    var userId = Context.Request.Query["userId"];
+    var userName = Context.Request.Query["name"];
+    var isAdminStr = Context.Request.Query["isAdmin"];
+    var isAdmin = isAdminStr == "true";
 }
 
-<div class="row mt-3">
-    @foreach (var item in Model)
-    {
-        var modalId = $"purchaseModal_{item.MovieId}";
-        <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 mb-4">
-            <div class="card h-100 bg-dark text-white">
-                <img src="@item.PosterUrl" class="card-img-top" alt="@item.Title" style="height:320px; object-fit:cover;" />
-                <div class="card-body text-center">
-                    <button class="btn btn-light btn-sm" data-bs-toggle="modal" data-bs-target="#@modalId">
-                        Purchase Details
-                    </button>
+@if (Model != null && Model.Any())
+{
+    // Agar movies kharidi hui hain, toh aapka purana grid dikhega
+    <div class="row mt-3 m-2">
+        @foreach (var item in Model)
+        {
+            var modalId = $"purchaseModal_{item.MovieId}";
+            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 mb-4">
+                <div class="card h-100 bg-dark text-white border-secondary shadow-sm">
+                    <img src="@item.PosterUrl" class="card-img-top" alt="@item.Title" style="height:320px; object-fit:cover;" />
+                    <div class="card-body text-center">
+                        <button class="btn btn-light btn-sm fw-bold" data-bs-toggle="modal" data-bs-target="#@modalId">
+                            Purchase Details
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="modal fade" id="@modalId" tabindex="-1">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Purchase Details</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-md-3">
-                                <img src="@item.PosterUrl" class="img-fluid rounded" alt="@item.Title" />
-                            </div>
-                            <div class="col-md-9">
-                                <p><strong>Purchased Date:</strong> @item.PurchaseDateTime.ToShortDateString()</p>
-                                <p><strong>Price:</strong> @item.TotalPrice.ToString("C")</p>
-                                <p><strong>Purchase Number:</strong> @item.PurchaseNumber</p>
+            <div class="modal fade" id="@modalId" tabindex="-1">
+                <div class="modal-dialog modal-lg modal-dialog-centered">
+                    <div class="modal-content bg-dark text-white border-secondary">
+                        <div class="modal-header border-secondary">
+                            <h5 class="modal-title fw-bold">Purchase Details</h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col-md-3 text-center">
+                                    <img src="@item.PosterUrl" class="img-fluid rounded shadow" alt="@item.Title" />
+                                </div>
+                                <div class="col-md-9 mt-3 mt-md-0 d-flex flex-column justify-content-center">
+                                    <h4 class="text-danger fw-bold mb-3">@item.Title</h4>
+                                    <p class="fs-5 mb-2"><i class="fa-regular fa-calendar text-secondary me-2"></i> <strong>Date:</strong> @item.PurchaseDateTime.ToShortDateString()</p>
+                                    <p class="fs-5 mb-2"><i class="fa-solid fa-tag text-secondary me-2"></i> <strong>Price:</strong> @item.TotalPrice.ToString("C", new System.Globalization.CultureInfo("en-US"))</p>
+                                    <p class="fs-6 text-light mt-2"><i class="fa-solid fa-check text-success me-2"></i> Purchase Number: @item.PurchaseNumber</p>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    }
-</div>
+        }
+    </div>
+}
+else
+{
+    // Agar ek bhi movie nahi kharidi hai, toh ye cinematic empty state dikhega
+    <div class="container-fluid d-flex flex-column align-items-center justify-content-center mt-4 p-5 text-center shadow-lg" 
+         style="background: linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.95)), url('https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=1200'); background-size: cover; background-position: center; min-height: 65vh; border-radius: 15px; border: 1px solid #333;">
+        
+        <i class="fa-solid fa-ticket-simple fa-5x text-secondary mb-4 opacity-75"></i>
+        <h1 class="text-white fw-bold display-5 mb-3">Your Movie Library is Empty</h1>
+        <p class="text-light fs-5 mb-5 opacity-75" style="max-width: 600px;">
+            You haven't purchased any movies yet. Time to grab some popcorn, explore our huge collection, and find your next favorite film!
+        </p>
+        
+        <a asp-controller="Home" asp-action="Index" 
+           asp-route-userId="@userId" 
+           asp-route-name="@userName" 
+           asp-route-isAdmin="@isAdminStr" 
+           class="btn btn-danger btn-lg px-5 py-3 fw-bold rounded-pill shadow transition-hover">
+            <i class="fa-solid fa-clapperboard me-2"></i> SHOP MOVIES NOW
+        </a>
+    </div>
+}

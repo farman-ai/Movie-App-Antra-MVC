@@ -19,48 +19,60 @@ private readonly IGenreService _genreService;
 
    
 
-    [HttpGet]
-    public async Task<IActionResult> Details(int id)
+  public async Task<IActionResult> Details(int id)
+{
+    var movie = await _movieService.GetMovieDetails(id);
+    if (movie == null)
+{
+    return NotFound(); 
+}
+    // URL se userId nikalna
+    int userId = 0;
+    if (int.TryParse(Request.Query["userId"], out int idValue))
     {
-        var movie = await _movieService.GetMovieDetails(id);
-        if (movie == null) return NotFound();
-
-        return View(movie);
+        userId = idValue;
     }
 
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Purchase(PurchaseModel model)
+    bool isPurchased = false;
+    // Agar user logged in hai (userId > 0), toh check karein
+    if (userId > 0)
     {
-        if (!ModelState.IsValid)
-        {
-            var movie = await _movieService.GetMovieDetails(model.MovieId);
-            return View("Details", movie);
-        }
-
-        await _purchaseService.SavePurchase(model);
-        TempData["Message"] = "Purchase completed successfully";
-
-        return RedirectToAction("Details", new { id = model.MovieId });
+        isPurchased = await _purchaseService.IsMoviePurchased(userId, id);
     }
 
+    // Isse View ko pata chalega ki button kaunsa dikhana hai
+    ViewBag.IsPurchased = isPurchased;
+
+    return View(movie);
+}
+
+[HttpPost]
+public async Task<IActionResult> Purchase(int id, int userId) 
+{
+    var movie = await _movieService.GetMovieDetails(id);
+
+    var purchaseRequest = new PurchaseRequestModel 
+    {
+        MovieId = id,
+        UserId = userId, // Parameter se aayi hui ID
+        TotalPrice = movie.Price
+    };
+
+    await _purchaseService.PurchaseMovie(purchaseRequest);
+    return RedirectToAction("Purchases", "User", new { userId = userId });
+}
 
 
 
 [HttpGet]
 public async Task<IActionResult> Genre(int id, int pageNumber = 1)
 {
-    // 1. Movies fetch karein
+
     var pagedMovies = await _movieService.GetMoviesByGenrePagination(id, 30, pageNumber);
+var genre = await _genreService.GetGenreById(id);
 
-    // 2. Genre Name fetch karein (Dynamic banane ke liye)
-    var allGenres = await _genreService.GetAllGenres();
-    var currentGenre = allGenres.FirstOrDefault(g => g.Id == id);
-    
-    // Agar genre mil jaye toh uska naam, warna fallback "Movies"
-    string genreName = currentGenre != null ? currentGenre.Name : "Movies";
+    string genreName = genre != null ? genre.Name : "Movies";
 
-    // 3. ViewBag mein data bhejein
     ViewBag.GenreId = id;
     ViewBag.GenreName = genreName; 
 

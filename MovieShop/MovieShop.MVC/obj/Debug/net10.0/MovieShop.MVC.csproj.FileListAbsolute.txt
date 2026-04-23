@@ -226,4 +226,4 @@
 /Users/mac/Desktop/MovieApp/App/MovieShop/MovieShop.MVC/bin/Debug/net10.0/tr/Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll
 /Users/mac/Desktop/MovieApp/App/MovieShop/MovieShop.MVC/bin/Debug/net10.0/zh-Hans/Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll
 /Users/mac/Desktop/MovieApp/App/MovieShop/MovieShop.MVC/bin/Debug/net10.0/zh-Hant/Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll
-/Users/mac/Desktop/MovieApp/App/MovieShop/MovieShop.MVC/obj/Debug/net10.0/compressed/0ssrcqrfwb-{0}-rc7zl4v9ir-rc7zl4v9ir.gz
+/Users/mac/Desktop/MovieApp/App/MovieShop/MovieShop.MVC/obj/Debug/net10.0/compressed/0ssrcqrfwb-{0}-x0abv9etfg-x0abv9etfg.gz

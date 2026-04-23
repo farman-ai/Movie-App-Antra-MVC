@@ -6,7 +6,7 @@ using MovieShop.Infrastructure.Data;
 
 namespace MovieShop.Infrastructure.Repository;
 
-// Note: Ensure 'Repository<T>' is defined in this namespace or add its using
+
 public class MovieRepository : Repository<Movie>, IMovieRepository
 {
     public MovieRepository(MovieShopDbContext dbContext) : base(dbContext)
@@ -31,7 +31,7 @@ public class MovieRepository : Repository<Movie>, IMovieRepository
             .FirstOrDefaultAsync(m => m.Id == id);
     }
 
-    public async Task<PagedResultSetModel<Movie>> GetMoviesByGenrePagination(int genreId, int pageSize = 30, int pageNumber = 1)
+    public async Task<PagedResultSetModel<Movie>> GetMoviesByGenrePagination(int genreId, int pageSize = 18, int pageNumber = 1)
     {
         var totalMoviesCount = await _dbContext.MovieGenres
             .Where(mg => mg.GenreId == genreId)
@@ -49,7 +49,7 @@ public class MovieRepository : Repository<Movie>, IMovieRepository
         return new PagedResultSetModel<Movie>(movies, pageNumber, pageSize, totalMoviesCount);
     }
 
-    public async Task<PagedResultSetModel<Movie>> GetMoviesByPagination(int pageNumber = 1, int pageSize = 30)
+    public async Task<PagedResultSetModel<Movie>> GetMoviesByPagination(int pageNumber = 1, int pageSize = 18)
     {
         var totalMoviesCount = await _dbContext.Movies.CountAsync();
 

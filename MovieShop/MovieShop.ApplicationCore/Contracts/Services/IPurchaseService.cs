@@ -4,6 +4,8 @@ namespace MovieShop.ApplicationCore.Contracts.Services;
 
 public interface IPurchaseService
 {
-    Task SavePurchase(PurchaseModel model);
-    Task<IEnumerable<PurchaseModel>> GetUserPurchases(int userId);
+    Task<bool> PurchaseMovie(PurchaseRequestModel purchaseRequest);
+    Task<List<PurchaseModel>> GetUserPurchases(int userId);
+    Task<bool> IsMoviePurchased(int userId, int movieId);
+    Task<IEnumerable<TopPurchasedMovieModel>> GetTopMovies(DateTime? fromDate, DateTime? toDate);
 }

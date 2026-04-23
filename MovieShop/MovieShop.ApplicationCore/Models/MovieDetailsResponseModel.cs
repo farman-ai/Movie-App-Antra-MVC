@@ -22,4 +22,14 @@ public class MovieDetailsResponseModel
     public List<GenreModel> Genres { get; set; } = new();
     public List<TrailerModel> Trailers { get; set; } = new();
     public List<CastModel> Casts { get; set; } = new();
+
+    public List<MovieReviewResponseModel> Reviews { get; set; } = new();
 }
+public class MovieReviewResponseModel
+{
+    public int MovieId { get; set; }
+    public int UserId { get; set; }
+    public decimal Rating { get; set; }
+    public string ReviewText { get; set; } = default!;
+}
+

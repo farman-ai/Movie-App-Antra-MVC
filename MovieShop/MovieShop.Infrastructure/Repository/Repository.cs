@@ -12,17 +12,25 @@ public class Repository<T> : IRepository<T> where T : class
     {
         _dbContext = dbContext;
     }
+// Is method ko add karein build error hatane ke liye
+    public async Task<T> AddAsync(T entity)
+    {
+        await _dbContext.Set<T>().AddAsync(entity);
+        await _dbContext.SaveChangesAsync();
+        return entity;
+    }
 
-    public async Task<T?> GetById(int id)
+    // GetById ko Task<T?> karein taaki interface se match ho (Warning Fix)
+    public virtual async Task<T?> GetById(int id)
     {
         return await _dbContext.Set<T>().FindAsync(id);
     }
 
-    public async Task<IEnumerable<T>> GetAll()
+    public virtual async Task<IEnumerable<T>> GetAll()
     {
         return await _dbContext.Set<T>().ToListAsync();
     }
-
+ 
     public async Task<T> Add(T entity)
     {
         await _dbContext.Set<T>().AddAsync(entity);

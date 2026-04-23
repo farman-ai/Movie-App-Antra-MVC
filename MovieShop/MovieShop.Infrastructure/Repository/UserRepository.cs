@@ -1,3 +1,4 @@
+// Path: MovieShop.Infrastructure/Repository/UserRepository.cs
 using Microsoft.EntityFrameworkCore;
 using MovieShop.ApplicationCore.Contracts.Repository;
 using MovieShop.Infrastructure.Data;
@@ -7,15 +8,31 @@ namespace MovieShop.Infrastructure.Repository;
 
 public class UserRepository : Repository<User>, IUserRepository
 {
-    private readonly MovieShopDbContext _dbContext;
-
     public UserRepository(MovieShopDbContext dbContext) : base(dbContext)
     {
-        _dbContext = dbContext;
     }
 
     public async Task<User?> GetUserByEmail(string email)
     {
+     
         return await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == email);
+    }
+
+    public async Task AddReview(Review review)
+{
+    _dbContext.Reviews.Add(review);
+    await _dbContext.SaveChangesAsync();
+}
+
+public async Task<Review?> GetReviewByUser(int userId, int movieId)
+    {
+        return await _dbContext.Reviews
+            .FirstOrDefaultAsync(r => r.UserId == userId && r.MovieId == movieId);
+    }
+
+    public async Task UpdateReview(Review review)
+    {
+        _dbContext.Reviews.Update(review);
+        await _dbContext.SaveChangesAsync();
     }
 }

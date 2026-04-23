@@ -1,3 +1,4 @@
+
 using Microsoft.AspNetCore.Mvc;
 using MovieShop.ApplicationCore.Contracts.Services;
 using MovieShop.ApplicationCore.Models;
@@ -14,24 +15,18 @@ public class AccountController : Controller
     }
 
     [HttpGet]
-    public IActionResult Register()
-    {
-        return View();
-    }
+    public IActionResult Register() => View();
 
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Register(UserRegisterModel model)
     {
-        if (!ModelState.IsValid)
-        {
-            return View(model);
-        }
+        if (!ModelState.IsValid) return View(model);
 
         try
         {
             await _userService.RegisterUser(model);
-            TempData["Message"] = "Registration successful";
+            TempData["Message"] = "Registration successful. Please Login.";
             return RedirectToAction("Login");
         }
         catch (Exception ex)
@@ -42,21 +37,29 @@ public class AccountController : Controller
     }
 
     [HttpGet]
-    public IActionResult Login()
-    {
-        return View();
-    }
+    public IActionResult Login() => View();
 
     [HttpPost]
-    [ValidateAntiForgeryToken]
-    public IActionResult Login(LoginModel model)
-    {
-        if (!ModelState.IsValid)
-        {
-            return View(model);
-        }
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> Login(LoginModel model)
+{
+    if (!ModelState.IsValid) return View(model);
 
-        TempData["Message"] = "Login successful";
-        return RedirectToAction("Index", "Home");
+    var user = await _userService.ValidateUser(model.Email, model.Password);
+
+    if (user == null)
+    {
+        ModelState.AddModelError("", "Invalid Email or Password");
+        return View(model);
     }
+
+    bool isAdmin = user.Email.ToLower().Contains("admin");
+
+    // Sab kuch URL mein pass kar rahe hain
+    return RedirectToAction("Index", "Home", new { 
+        userId = user.Id, 
+        name = user.FirstName, 
+        isAdmin = isAdmin 
+    });
+}
 }

@@ -13,16 +13,16 @@ public class MovieService : IMovieService
         _movieRepository = movieRepository;
     }
 
-    // Home Page ke liye Top Movies (Static Data as per your current code)
-    public IEnumerable<MovieCardModel> GetTopMovies()
+
+    public async Task<IEnumerable<MovieCardModel>> GetTopMovies()
     {
-       return new List<MovieCardModel>
+       return await Task.FromResult(new List<MovieCardModel>
         {
             new MovieCardModel { Id = 1, Title = "Domestic Disturbance", PosterUrl = "https://image.tmdb.org/t/p/w342/jdGniF19AqQ1taLXmK04b6BjQk.jpg" },
             new MovieCardModel { Id = 2, Title = "The Hard Way", PosterUrl = "https://image.tmdb.org/t/p/w342/1Nu42swt2QbHGV5o69UJL9EaprJ.jpg" },
             new MovieCardModel { Id = 3, Title = "Death to Smoochy", PosterUrl = "https://image.tmdb.org/t/p/w342/jLOgkwcXzlCmwjbWVaWS1vETutl.jpg" },
             new MovieCardModel { Id = 4, Title = "Sweet Smell of Success", PosterUrl = "https://image.tmdb.org/t/p/w342/7xfLUISDZ1zZ8vPU5Y7j5mv0Xvc.jpg" }
-        };
+        });
     }
 
     // Highest Grossing Movies logic
@@ -63,16 +63,23 @@ public class MovieService : IMovieService
             ReleaseDate = movie.ReleaseDate,
             Price = generatedPrice,
             Rating = movie.Reviews.Any() ? movie.Reviews.Average(r => r.Rating) : 0,
+            Reviews = movie.Reviews.Select(r => new MovieReviewResponseModel
+        {
+            MovieId = r.MovieId,
+            UserId = r.UserId,
+            Rating = r.Rating,
+            ReviewText = r.ReviewText
+        }).ToList(),
             Genres = movie.MovieGenres.Select(mg => new GenreModel { Id = mg.GenreId, Name = mg.Genre.Name }).ToList(),
             Trailers = movie.Trailers.Select(t => new TrailerModel { Id = t.Id, Name = t.Name, TrailerUrl = t.TrailerUrl }).ToList(),
             Casts = movie.MovieCasts.Select(mc => new CastModel { Id = mc.CastId, Name = mc.Cast.Name, Character = mc.Character, ProfilePath = mc.Cast.ProfilePath }).ToList(),
         };
     }
 
-    // Genre Pagination (Fix: Correct Repo Method Call)
-    public async Task<PagedResultSetModel<MovieCardModel>> GetMoviesByGenrePagination(int genreId, int pageSize = 30, int pageNumber = 1)
+  
+    public async Task<PagedResultSetModel<MovieCardModel>> GetMoviesByGenrePagination(int genreId, int pageSize = 18, int pageNumber = 1)
     {
-        // Yahan 'GetMoviesByGenrePagination' hi call hona chahiye
+
         var pagedMovies = await _movieRepository.GetMoviesByGenrePagination(genreId, pageSize, pageNumber);
 
         var movieCards = pagedMovies.Data.Select(m => new MovieCardModel
@@ -87,7 +94,7 @@ public class MovieService : IMovieService
     }
 
     // All Movies Pagination
-    public async Task<PagedResultSetModel<MovieCardModel>> GetMoviesByPagination(int pageNumber = 1, int pageSize = 30)
+    public async Task<PagedResultSetModel<MovieCardModel>> GetMoviesByPagination(int pageNumber = 1, int pageSize = 18)
     {
         var pagedMovies = await _movieRepository.GetMoviesByPagination(pageNumber, pageSize);
 
