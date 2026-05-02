@@ -3,9 +3,8 @@ trigger:
 
 variables:
   buildConfiguration: 'Release'
-  # This matches your Azure Subscription ID
+  # Ensure this EXACT name exists in Project Settings -> Service Connections
   azureServiceConnection: 'Azure subscription 1(208d95e6-0ef5-4010-a183-3e7c067f8805)'
-  # UPDATE THIS to your actual App Service name from the Azure Portal
   appName: 'MovieShop2026-App' 
 
 stages:
@@ -38,6 +37,8 @@ stages:
   jobs:
   - deployment: DeployJob
     pool:
+      # Changed from 'ubuntu-latest' to 'Azure Pipelines' with vmImage
+      name: 'Azure Pipelines'
       vmImage: 'ubuntu-latest'
     environment: 'production'
     strategy:
