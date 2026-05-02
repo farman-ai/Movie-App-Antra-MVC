@@ -1,17 +1,32 @@
-# ASP.NET Core
-# Build and test ASP.NET Core projects targeting .NET Core.
-# Add steps that run tests, create a NuGet package, deploy, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
-
 trigger:
 - main
 
 pool:
-  vmImage: default
+  # Change this to the name of the pool you used during setup (e.g., 'Default')
+  name: 'Default' 
+  # Use demands to ensure it only runs on your specific Mac agent
+  demands:
+  - Agent.Name -equals macs-MacBook-Pro
 
 variables:
   buildConfiguration: 'Release'
 
 steps:
 - script: dotnet build --configuration $(buildConfiguration)
-  displayName: 'dotnet build $(buildConfiguration)'
+  displayName: 'Build Project'
+
+- script: dotnet test --configuration $(buildConfiguration) --no-build
+  displayName: 'Run Tests'
+
+# This step prepares the files for deployment
+- script: dotnet publish --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)
+  displayName: 'Publish App'
+
+# Example Deployment Step: Copying to a local folder on your Mac
+- task: CopyFiles@2
+  displayName: 'Deploy to Local Folder'
+  inputs:
+    SourceFolder: '$(Build.ArtifactStagingDirectory)'
+    Contents: '**'
+    TargetFolder: '/Users/mac/deployments/MovieShop2026'
+    CleanTargetFolder: true
