@@ -1,0 +1,65 @@
+trigger:
+  branches:
+    include:
+    - main
+
+variables:
+- name: buildConfiguration
+  value: 'Release'
+# Project Settings -> Service Connections mein jo 'Name' hai wo yahan likhein
+- name: azureServiceConnection
+  value: 'Azure subscription 1' 
+# Azure Portal mein jo aapke App Service ka naam hai wo yahan likhein
+- name: appName
+  value: 'MovieShop2026-App'
+
+stages:
+- stage: Build
+  jobs:
+  - job: BuildJob
+    pool:
+      name: 'Default'
+      demands:
+      - Agent.Name -equals macs-MacBook-Pro
+    steps:
+    - task: CmdLine@2
+      displayName: 'Dotnet Build'
+      inputs:
+        script: |
+          find . -name "*.csproj" -exec dotnet build {} --configuration $(buildConfiguration) \;
+
+    # Release ke liye files ko publish karna zaroori hai
+    - task: DotNetCoreCLI@2
+      displayName: 'Dotnet Publish'
+      inputs:
+        command: 'publish'
+        publishWebProjects: true
+        arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+        zipAfterPublish: true
+
+    # Publish ki hui files ko Azure mein upload karna
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'drop'
+        publishLocation: 'Container'
+
+- stage: Deploy
+  dependsOn: Build
+  condition: succeeded()
+  jobs:
+  - deployment: DeployJob
+    pool:
+      vmImage: 'ubuntu-latest'
+    environment: 'production'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: AzureWebApp@1
+            displayName: 'Azure App Service Deploy'
+            inputs:
+              azureSubscription: '$(azureServiceConnection)'
+              appType: 'webApp'
+              appName: '$(appName)'
+              package: '$(Pipeline.Workspace)/drop/**/*.zip'
