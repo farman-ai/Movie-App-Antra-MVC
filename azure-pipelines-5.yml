@@ -6,12 +6,10 @@ trigger:
 variables:
 - name: buildConfiguration
   value: 'Release'
-# Project Settings -> Service Connections mein jo 'Name' hai wo yahan likhein
 - name: azureServiceConnection
-  value: 'Azure subscription 1' 
-# Azure Portal mein jo aapke App Service ka naam hai wo yahan likhein
+  value: 'Azure subscription 1(208d95e6-0ef5-401c-a183-3e7c067f8805)'
 - name: appName
-  value: 'MovieShop2026-App'
+  value: 'MovieShop2026' # Ensure this matches your Azure App Service name
 
 stages:
 - stage: Build
@@ -28,7 +26,6 @@ stages:
         script: |
           find . -name "*.csproj" -exec dotnet build {} --configuration $(buildConfiguration) \;
 
-    # Release ke liye files ko publish karna zaroori hai
     - task: DotNetCoreCLI@2
       displayName: 'Dotnet Publish'
       inputs:
@@ -37,7 +34,6 @@ stages:
         arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
         zipAfterPublish: true
 
-    # Publish ki hui files ko Azure mein upload karna
     - task: PublishBuildArtifacts@1
       inputs:
         PathtoPublish: '$(Build.ArtifactStagingDirectory)'
@@ -50,7 +46,7 @@ stages:
   jobs:
   - deployment: DeployJob
     pool:
-      vmImage: 'ubuntu-latest'
+      name: 'Default' # Using your Mac agent for deploy to avoid hosted pool errors
     environment: 'production'
     strategy:
       runOnce:
