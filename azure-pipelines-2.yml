@@ -1,5 +1,3 @@
-# ASP.NET Core
-# Build and test ASP.NET Core projects targeting .NET Core.
 trigger:
 - main
 
@@ -16,7 +14,7 @@ stages:
       - Agent.Name -equals macs-MacBook-Pro
     
     steps:
-    # This searches all folders and builds the project automatically
+    # This command works on Mac/Linux to find and build the project
     - script: |
-        dotnet build **/*.csproj --configuration $(buildConfiguration)
+        find . -name "*.csproj" -exec dotnet build {} --configuration $(buildConfiguration) \;
       displayName: 'dotnet build $(buildConfiguration)'
