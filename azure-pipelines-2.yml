@@ -16,6 +16,7 @@ stages:
       - Agent.Name -equals macs-MacBook-Pro
     
     steps:
-    - script: dotnet build --configuration $(buildConfiguration)
-      workingDirectory: 'Movie-App-Antra-MVC'
+    # This searches all folders and builds the project automatically
+    - script: |
+        dotnet build **/*.csproj --configuration $(buildConfiguration)
       displayName: 'dotnet build $(buildConfiguration)'
