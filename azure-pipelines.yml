@@ -8,7 +8,7 @@ variables:
   value: 'Release'
 
 stages:
-- stage: __default
+- stage: BuildAndDeploy
   jobs:
   - job: Job
     pool:
@@ -16,28 +16,25 @@ stages:
       demands:
       - Agent.Name -equals macs-MacBook-Pro
     steps:
-    # 1. Build the project from the specific subfolder
+    # 1. Build the project using wildcards to find the .sln or .csproj file
     - task: CmdLine@2
       displayName: 'Build Project'
       inputs:
-        script: dotnet build --configuration $(buildConfiguration)
-        workingDirectory: 'YourProjectSubfolderName' # <--- CHANGE THIS
+        script: 'dotnet build **/*.sln --configuration $(buildConfiguration)'
 
-    # 2. Run tests from the same folder
+    # 2. Run tests (optional but recommended)
     - task: CmdLine@2
       displayName: 'Run Tests'
       inputs:
-        script: dotnet test --configuration $(buildConfiguration) --no-build
-        workingDirectory: 'YourProjectSubfolderName' # <--- CHANGE THIS
+        script: 'dotnet test **/*.sln --configuration $(buildConfiguration) --no-build'
 
-    # 3. Publish (Prepare for move/deploy)
+    # 3. Publish the application to the staging directory
     - task: CmdLine@2
       displayName: 'Publish App'
       inputs:
-        script: dotnet publish --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)
-        workingDirectory: 'YourProjectSubfolderName' # <--- CHANGE THIS
+        script: 'dotnet publish **/*.csproj --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
 
-    # 4. Move files to your deployment folder (The "mv/deploy" part)
+    # 4. Deploy files to your local folder on the Mac
     - task: CopyFiles@2
       displayName: 'Deploy to Local Folder'
       inputs:
