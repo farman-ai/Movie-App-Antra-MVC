@@ -17,4 +17,5 @@ stages:
     
     steps:
     - script: dotnet build --configuration $(buildConfiguration)
+      workingDirectory: 'Movie-App-Antra-MVC'
       displayName: 'dotnet build $(buildConfiguration)'
