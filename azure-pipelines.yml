@@ -1,36 +1,47 @@
 trigger:
-- task: DotNetCoreCLI@2
-  inputs:
-    azureSubscription: 'Azure subscription 1(208d95e6-0ef5-401c-a183-3e7c067f8805)'
-    command: 'build'
-- main
-
-pool:
-  # Change this to the name of the pool you used during setup (e.g., 'Default')
-  name: 'Default' 
-  # Use demands to ensure it only runs on your specific Mac agent
-  demands:
-  - Agent.Name -equals macs-MacBook-Pro
+  branches:
+    include:
+    - main
 
 variables:
-  buildConfiguration: 'Release'
+- name: buildConfiguration
+  value: 'Release'
 
-steps:
-- script: dotnet build --configuration $(buildConfiguration)
-  displayName: 'Build Project'
+stages:
+- stage: __default
+  jobs:
+  - job: Job
+    pool:
+      name: 'Default'
+      demands:
+      - Agent.Name -equals macs-MacBook-Pro
+    steps:
+    # 1. Build the project from the specific subfolder
+    - task: CmdLine@2
+      displayName: 'Build Project'
+      inputs:
+        script: dotnet build --configuration $(buildConfiguration)
+        workingDirectory: 'YourProjectSubfolderName' # <--- CHANGE THIS
 
-- script: dotnet test --configuration $(buildConfiguration) --no-build
-  displayName: 'Run Tests'
+    # 2. Run tests from the same folder
+    - task: CmdLine@2
+      displayName: 'Run Tests'
+      inputs:
+        script: dotnet test --configuration $(buildConfiguration) --no-build
+        workingDirectory: 'YourProjectSubfolderName' # <--- CHANGE THIS
 
-# This step prepares the files for deployment
-- script: dotnet publish --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)
-  displayName: 'Publish App'
+    # 3. Publish (Prepare for move/deploy)
+    - task: CmdLine@2
+      displayName: 'Publish App'
+      inputs:
+        script: dotnet publish --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)
+        workingDirectory: 'YourProjectSubfolderName' # <--- CHANGE THIS
 
-# Example Deployment Step: Copying to a local folder on your Mac
-- task: CopyFiles@2
-  displayName: 'Deploy to Local Folder'
-  inputs:
-    SourceFolder: '$(Build.ArtifactStagingDirectory)'
-    Contents: '**'
-    TargetFolder: '/Users/mac/deployments/MovieShop2026'
-    CleanTargetFolder: true
+    # 4. Move files to your deployment folder (The "mv/deploy" part)
+    - task: CopyFiles@2
+      displayName: 'Deploy to Local Folder'
+      inputs:
+        SourceFolder: '$(Build.ArtifactStagingDirectory)'
+        Contents: '**'
+        TargetFolder: '/Users/mac/deployments/MovieShop2026'
+        CleanTargetFolder: true
