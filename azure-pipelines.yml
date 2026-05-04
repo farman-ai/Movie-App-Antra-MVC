@@ -8,37 +8,27 @@ variables:
   value: 'Release'
 
 stages:
-- stage: BuildAndDeploy
+- stage: Build
   jobs:
-  - job: Job
+  - job: BuildJob
     pool:
       name: 'Default'
       demands:
       - Agent.Name -equals macs-MacBook-Pro
     steps:
-    # 1. Build the project using wildcards to find the .sln or .csproj file
-    - task: CmdLine@2
-      displayName: 'Build Project'
+    # This will find and build any .csproj file in the directory tree
+    - task: DotNetCoreCLI@2
+      displayName: 'Dotnet Build'
       inputs:
-        script: 'dotnet build **/*.sln --configuration $(buildConfiguration)'
+        command: 'build'
+        projects: '**/*.csproj'
+        arguments: '--configuration $(buildConfiguration)'
 
-    # 2. Run tests (optional but recommended)
-    - task: CmdLine@2
-      displayName: 'Run Tests'
+    # Optional: Keep this if you want to verify the output locally on your Mac
+    - task: DotNetCoreCLI@2
+      displayName: 'Dotnet Publish'
       inputs:
-        script: 'dotnet test **/*.sln --configuration $(buildConfiguration) --no-build'
-
-    # 3. Publish the application to the staging directory
-    - task: CmdLine@2
-      displayName: 'Publish App'
-      inputs:
-        script: 'dotnet publish **/*.csproj --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
-
-    # 4. Deploy files to your local folder on the Mac
-    - task: CopyFiles@2
-      displayName: 'Deploy to Local Folder'
-      inputs:
-        SourceFolder: '$(Build.ArtifactStagingDirectory)'
-        Contents: '**'
-        TargetFolder: '/Users/mac/deployments/MovieShop2026'
-        CleanTargetFolder: true
+        command: 'publish'
+        publishWebProjects: true
+        arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+        zipAfterPublish: false
