@@ -1,18 +1,73 @@
-- stage: Deploy
-  dependsOn: __default
+trigger:
+  branches:
+    include:
+    - main
+
+variables:
+  buildConfiguration: 'Release'
+  # Yahan apni Service Connection ka naam dalein jo aapne Settings mein dekha tha
+  azureServiceConnection: 'Azure subscription 1 (208d95e6-0ef5-401c-a183-3e7c067f8805)'
+  webAppName: 'MovieShop'
+
+stages:
+# STAGE 1: Build (Aapke MacBook Agent par chalega)
+- stage: Build
+  displayName: 'Build and Package'
   jobs:
-  - deployment: DeployWeb
+  - job: BuildJob
     pool:
       name: 'Default'
+      demands:
+      - agent.name -equals macs-MacBook-Pro
+    steps:
+    - task: UseDotNet@2
+      displayName: 'Install .NET SDK'
+      inputs:
+        packageType: 'sdk'
+        version: '10.x'
+        includePreviewVersions: true
+
+    - task: DotNetCoreCLI@2
+      displayName: 'Restore and Build'
+      inputs:
+        command: 'build'
+        projects: '**/*.csproj'
+        arguments: '--configuration $(buildConfiguration)'
+
+    - task: DotNetCoreCLI@2
+      displayName: 'Publish'
+      inputs:
+        command: 'publish'
+        publishWebProjects: true
+        arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+        zipAfterPublish: true
+
+    - task: PublishBuildArtifacts@1
+      displayName: 'Upload Artifact'
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'drop'
+        publishLocation: 'Container'
+
+# STAGE 2: Deploy (Build ke baad automatically chalega)
+- stage: Deploy
+  displayName: 'Deploy to Azure'
+  dependsOn: Build
+  condition: succeeded()
+  jobs:
+  - deployment: DeployJob
+    pool:
+      name: 'Default' # Deploy bhi MacBook agent hi trigger karega
     environment: 'Production'
     strategy:
       runOnce:
         deploy:
           steps:
           - task: AzureRmWebAppDeployment@4
+            displayName: 'Azure App Service Deploy'
             inputs:
               ConnectionType: 'AzureRM'
-              azureSubscription: 'Azure subscription 1 (208d95e6-0ef5-401c-a183-3e7c067f8805)'
+              azureSubscription: '$(azureServiceConnection)'
               appType: 'webApp'
-              WebAppName: 'MovieShop'
-              packageForLinux: '$(System.DefaultWorkingDirectory)/**/*.zip'
+              WebAppName: '$(webAppName)'
+              packageForLinux: '$(Pipeline.Workspace)/drop/**/*.zip'
