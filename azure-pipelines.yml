@@ -1,50 +1,18 @@
-# 1. Trigger setup: Jab main branch me push ho tab build chale
-trigger:
-- main
-
-# 2. Agent setup: Aapka MacBook Pro self-hosted agent
-pool:
-  name: 'Default'
-  demands:
-  - agent.name -equals macs-MacBook-Pro
-
-variables:
-  buildConfiguration: 'Release'
-
-steps:
-# 3. Fast Checkout: Sirf latest code download karega (time bachanay ke liye)
-- checkout: self
-  fetchDepth: 1
-
-# 4. .NET SDK Setup: .NET 10 ke liye preview allow karna zaroori hai
-- task: UseDotNet@2
-  displayName: 'Install .NET 10 SDK'
-  inputs:
-    packageType: 'sdk'
-    version: '10.x'
-    includePreviewVersions: true
-
-# 5. Restore & Build: Saare projects (MVC, ApplicationCore, Infrastructure) build honge
-- task: DotNetCoreCLI@2
-  displayName: 'Restore and Build MovieShop'
-  inputs:
-    command: 'build'
-    projects: '**/*.csproj'
-    arguments: '--configuration $(buildConfiguration)'
-
-# 6. Publish: Deployment ke liye ZIP package create karega
-- task: DotNetCoreCLI@2
-  displayName: 'Publish to Artifact'
-  inputs:
-    command: 'publish'
-    publishWebProjects: true
-    arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
-    zipAfterPublish: true
-
-# 7. Artifact Store: Isse aap manual release ke liye ZIP download kar payenge
-- task: PublishBuildArtifacts@1
-  displayName: 'Save Artifact for Manual Release'
-  inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-    ArtifactName: 'MovieShop-Build-Pkg'
-    publishLocation: 'Container'
+- stage: Deploy
+  dependsOn: __default
+  jobs:
+  - deployment: DeployWeb
+    pool:
+      name: 'Default'
+    environment: 'Production'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: AzureRmWebAppDeployment@4
+            inputs:
+              ConnectionType: 'AzureRM'
+              azureSubscription: 'Azure subscription 1 (208d95e6-0ef5-401c-a183-3e7c067f8805)'
+              appType: 'webApp'
+              WebAppName: 'MovieShop'
+              packageForLinux: '$(System.DefaultWorkingDirectory)/**/*.zip'
