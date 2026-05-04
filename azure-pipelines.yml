@@ -1,6 +1,8 @@
+# 1. Trigger setup: Jab main branch me push ho tab build chale
 trigger:
 - main
 
+# 2. Agent setup: Aapka MacBook Pro self-hosted agent
 pool:
   name: 'Default'
   demands:
@@ -10,39 +12,39 @@ variables:
   buildConfiguration: 'Release'
 
 steps:
-# 1. Fast Checkout
+# 3. Fast Checkout: Sirf latest code download karega (time bachanay ke liye)
 - checkout: self
   fetchDepth: 1
 
-# 2. .NET SDK Setup
+# 4. .NET SDK Setup: .NET 10 ke liye preview allow karna zaroori hai
 - task: UseDotNet@2
-  displayName: 'Install .NET SDK'
+  displayName: 'Install .NET 10 SDK'
   inputs:
     packageType: 'sdk'
-    version: '8.x'
+    version: '10.x'
+    includePreviewVersions: true
 
-# 3. Restore & Build (Finding the project file automatically)
+# 5. Restore & Build: Saare projects (MVC, ApplicationCore, Infrastructure) build honge
 - task: DotNetCoreCLI@2
-  displayName: 'Restore and Build'
+  displayName: 'Restore and Build MovieShop'
   inputs:
     command: 'build'
-    # Yeh '**/*.csproj' poore folders me project file dhoond lega
-    projects: '**/*.csproj' 
+    projects: '**/*.csproj'
     arguments: '--configuration $(buildConfiguration)'
 
-# 4. Publish (Creating the ZIP for manual release)
+# 6. Publish: Deployment ke liye ZIP package create karega
 - task: DotNetCoreCLI@2
-  displayName: 'Publish'
+  displayName: 'Publish to Artifact'
   inputs:
     command: 'publish'
     publishWebProjects: true
     arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
     zipAfterPublish: true
 
-# 5. Save Artifact
+# 7. Artifact Store: Isse aap manual release ke liye ZIP download kar payenge
 - task: PublishBuildArtifacts@1
-  displayName: 'Save Artifact'
+  displayName: 'Save Artifact for Manual Release'
   inputs:
     PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-    ArtifactName: 'MovieShop-Manual-Release'
+    ArtifactName: 'MovieShop-Build-Pkg'
     publishLocation: 'Container'
