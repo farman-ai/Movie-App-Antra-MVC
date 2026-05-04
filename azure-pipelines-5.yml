@@ -4,12 +4,12 @@ trigger:
     - main
 
 variables:
-- name: buildConfiguration
-  value: 'Release'
-- name: azureServiceConnection
-  value: 'Azure subscription 1(208d95e6-0ef5-401c-a183-3e7c067f8805)'
-- name: appName
-  value: 'MovieShop2026' # Ensure this matches your Azure App Service name
+  - name: buildConfiguration
+    value: 'Release'
+  - name: azureServiceConnection
+    value: 'Azure subscription 1(208d95e6-0ef5-401c-a183-3e7c067f8805)'
+  - name: appName
+    value: 'MovieAppService' # Corrected from MovieShop2026 to match your Azure Resource
 
 stages:
 - stage: Build
@@ -35,19 +35,22 @@ stages:
         zipAfterPublish: true
 
     - task: PublishBuildArtifacts@1
+      displayName: 'Publish Artifacts'
       inputs:
         PathtoPublish: '$(Build.ArtifactStagingDirectory)'
         ArtifactName: 'drop'
         publishLocation: 'Container'
 
 - stage: Deploy
-  dependsOn: Build
+  dependsOn:
+  - Build
   condition: succeeded()
   jobs:
   - deployment: DeployJob
     pool:
-      name: 'Default' # Using your Mac agent for deploy to avoid hosted pool errors
-    environment: 'production'
+      name: 'Default'
+    environment:
+      name: 'production'
     strategy:
       runOnce:
         deploy:
