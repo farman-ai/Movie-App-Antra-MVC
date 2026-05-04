@@ -14,7 +14,26 @@ stages:
       - Agent.Name -equals macs-MacBook-Pro
     
     steps:
-    # This command works on Mac/Linux to find and build the project
+    # 1. Build the project
     - script: |
         find . -name "*.csproj" -exec dotnet build {} --configuration $(buildConfiguration) \;
       displayName: 'dotnet build $(buildConfiguration)'
+
+    # 2. Publish the build output to a zip file
+    - task: DotNetCoreCLI@2
+      displayName: 'Publish Artifacts'
+      inputs:
+        command: 'publish'
+        publishWebProjects: true
+        arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+        zipAfterPublish: true
+
+    # 3. Deploy to Azure
+    - task: AzureRmWebAppDeployment@4
+      displayName: 'Deploy to Azure App Service'
+      inputs:
+        ConnectionType: 'AzureRM'
+        azureSubscription: 'Azure subscription 1(208d95e6-0ef5-401c-a183-3e7c067f8805)'
+        appType: 'webApp'
+        WebAppName: 'MovieAppService'
+        packageForLinux: '$(Build.ArtifactStagingDirectory)/**/*.zip'
